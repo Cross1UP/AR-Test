@@ -7,26 +7,26 @@ public class ARGrabRelease : MonoBehaviour, IPointerDownHandler, IPointerUpHandl
 {
     public Camera arCamera;
     public float interactionRange = 1.0f;
-
+    
     private Transform cubeTransform;
-    private Vector3 offset;
+    private float distanceFromCamera; // Store this as a class variable
     private bool isButtonHeld = false;
     private bool isHoldingCube = false;
-
+    
     void Update()
     {
         if (isButtonHeld)
         {
             if (!isHoldingCube)
             {
-                Ray ray = arCamera.ScreenPointToRay(Input.mousePosition);
+                Ray ray = arCamera.ScreenPointToRay(new Vector2(Screen.width / 2, Screen.height / 2));
                 RaycastHit hit;
                 if (Physics.Raycast(ray, out hit, interactionRange))
                 {
                     if (hit.collider.CompareTag("Cube")) // Ensure cubes have the "Cube" tag
                     {
                         cubeTransform = hit.transform;
-                        offset = cubeTransform.position - arCamera.transform.position;
+                        distanceFromCamera = Vector3.Distance(cubeTransform.position, arCamera.transform.position);
                         isHoldingCube = true;
                     }
                 }
@@ -35,11 +35,11 @@ public class ARGrabRelease : MonoBehaviour, IPointerDownHandler, IPointerUpHandl
                     Handheld.Vibrate(); // Vibrate if no cube is detected
                 }
             }
-
+            
             if (isHoldingCube)
             {
-                float distanceToCube = Vector3.Distance(arCamera.transform.position, cubeTransform.position);
-                if (distanceToCube > interactionRange)
+                float currentDistance = Vector3.Distance(arCamera.transform.position, cubeTransform.position);
+                if (currentDistance > interactionRange)
                 {
                     isHoldingCube = false;
                     cubeTransform = null;
@@ -47,17 +47,18 @@ public class ARGrabRelease : MonoBehaviour, IPointerDownHandler, IPointerUpHandl
                 }
                 else
                 {
-                    cubeTransform.position = arCamera.transform.position + offset;
+                    cubeTransform.position = arCamera.transform.position + arCamera.transform.forward * distanceFromCamera;
+                    cubeTransform.rotation = arCamera.transform.rotation;
                 }
             }
         }
     }
-
+    
     public void OnPointerDown(PointerEventData eventData)
     {
         isButtonHeld = true;
     }
-
+    
     public void OnPointerUp(PointerEventData eventData)
     {
         isButtonHeld = false;

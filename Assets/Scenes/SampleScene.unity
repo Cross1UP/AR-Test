@@ -1394,7 +1394,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eacab3982a59d784887b4189ac88def8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cubeTransform: {fileID: 1683082102}
   arCamera: {fileID: 1888651499}
   interactionRange: 1
 --- !u!1 &1023406907
